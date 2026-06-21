@@ -930,11 +930,12 @@ function svgChart(active){
   var H=200,pL=26,pR=8,pT=20,pB=28,cW=W2-pL-pR,cH=H-pT-pB;
   var bGW=cW/yd.length,bW=Math.min(bGW*0.6,70);
   var maxV=mode==="pct"?100:Math.max.apply(null,yd.map(function(d){return TK.reduce(function(s,k){return s+d[k];},0);})) * 1.1||100;
-  var gridVals=[0,25,50,75,100].filter(function(v){return v<=maxV;});
+  var gridStep=mode==="pct"?25:Math.ceil(maxV/4/1)*1;
+  var gridVals=[];for(var gv=0;gv<=maxV;gv+=gridStep){gridVals.push(Math.round(gv));}
   var grids=gridVals.map(function(v){
     var y=pT+cH-(v/maxV*cH);
     return '<line x1="'+pL+'" x2="'+(W2-pR)+'" y1="'+y+'" y2="'+y+'" stroke="#1e2535" stroke-dasharray="3,3"/>'
-      +'<text x="'+(pL-3)+'" y="'+(y+4)+'" text-anchor="end" fill="#374151" font-size="9">'+v+(mode==="pct"?"%":""+"")+'</text>';
+      +'<text x="'+(pL-3)+'" y="'+(y+4)+'" text-anchor="end" fill="#374151" font-size="9">'+v+(mode==="pct"?"%":"")+'</text>';
   }).join("");
   var bars=yd.map(function(d,i){
     var cx=pL+i*bGW+bGW/2,x=cx-bW/2,yb=pT+cH,rects="";
@@ -964,6 +965,7 @@ function svgChart(active){
 
 // ── TREND TABLE (transposed) ──────────────────────────────────────────────────
 function trendTable(active){
+  var mode=S.chartMode;
   var yrs=[...new Set(active.map(function(r){return r.year;}))].sort(function(a,b){return a-b;});
   var yd=yrs.map(function(yr){
     var rs=active.filter(function(r){return r.year===yr;});
@@ -972,16 +974,20 @@ function trendTable(active){
     var best=Math.min.apply(null,rs.map(function(r){return r.strokes;}));
     var worst=Math.max.apply(null,rs.map(function(r){return r.strokes;}));
     var totH=rs.reduce(function(s,r){return s+r.birdie+r.parH+r.bogey+r.dbl+r.trip;},0);
-    var pcts={};
-    TK.forEach(function(t){pcts[t]=totH?Math.round(rs.reduce(function(s,r){return s+r[t];},0)/totH*100):0;});
-    return{yr:yr,n:n,av:av,best:best,worst:worst,pcts:pcts};
+    var pcts={};var avgs={};
+    TK.forEach(function(t){
+      var cnt=rs.reduce(function(s,r){return s+r[t];},0);
+      pcts[t]=totH?Math.round(cnt/totH*100):0;
+      avgs[t]=+(cnt/n).toFixed(1);
+    });
+    return{yr:yr,n:n,av:av,best:best,worst:worst,pcts:pcts,avgs:avgs};
   });
   var statRows=[
     {label:"Rounds",fn:function(d){return d.n;},fmt:function(v){return'<td style="color:#6a7a9a;padding:8px 10px;font-size:13px">'+v+'</td>';}},
     {label:"Avg",fn:function(d){return parseFloat(d.av);},fmt:function(v,i,arr){
       var best=Math.min.apply(null,arr);var worst=Math.max.apply(null,arr);
       var col=v===best?"#4ade80":v===worst?"#f87171":"#e8ecf4";
-      return'<td style="font-size:14px;font-weight:800;padding:8px 10px;color:'+col+'">'+v.toFixed(1)+(v===best?" v":"")+'</td>';
+      return'<td style="font-size:14px;font-weight:800;padding:8px 10px;color:'+col+'">'+v.toFixed(1)+(v===best?"✓":"")+'</td>';
     }},
     {label:"Best",fn:function(d){return d.best;},fmt:function(v,i,arr){
       var b=Math.min.apply(null,arr);
@@ -993,24 +999,32 @@ function trendTable(active){
     }}
   ];
   TK.forEach(function(t){
-    statRows.push({label:TL[t]+"%",col:TC[t],fn:function(d){return d.pcts[t];},fmt:function(v,i,arr){
-      var prev=arr[i-1];
-      var better=t==="birdie"||t==="parH";
-      var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">&#9650;</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">&#9660;</span>':""):"";
-      return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'%</span>'+arrow+'</td>';
-    }});
+    if(mode==="pct"){
+      statRows.push({label:TL[t]+"%",col:TC[t],fn:function(d){return d.pcts[t];},fmt:function(v,i,arr){
+        var prev=arr[i-1];
+        var better=t==="birdie"||t==="parH";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'%</span>'+arrow+'</td>';
+      }});
+    } else {
+      statRows.push({label:TL[t]+"/rd",col:TC[t],fn:function(d){return d.avgs[t];},fmt:function(v,i,arr){
+        var prev=arr[i-1];
+        var better=t==="birdie"||t==="parH";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'</span>'+arrow+'</td>';
+      }});
+    }
   });
-  var header='<tr style="background:#0a0c12"><th style="padding:8px 10px;font-size:11px;color:#5a6a8a;font-weight:700;min-width:80px">Stat</th>'
-    +yrs.map(function(yr){return'<th style="padding:8px 10px;font-size:13px;color:#e8ecf4;font-weight:800">'+yr+'</th>';}).join("")+'</tr>';
+  var toggleHtml='<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">'+'<span style="font-size:12px;color:#5a6a8a;font-weight:600">View as</span>'+'<button class="toggle-btn '+(mode==="pct"?"on":"")+'" onclick="S.chartMode=\'pct\';render()">% of holes</button>'+'<button class="toggle-btn '+(mode==="avg"?"on":"")+'" onclick="S.chartMode=\'avg\';render()">avg/round</button>'+'</div>';
+  var header='<tr style="background:#0a0c12"><th style="padding:8px 10px;font-size:11px;color:#5a6a8a;font-weight:700;min-width:80px">Stat</th>'+yrs.map(function(yr){return'<th style="padding:8px 10px;font-size:13px;color:#e8ecf4;font-weight:800">'+yr+'</th>';}).join("")+'</tr>';
   var rows=statRows.map(function(row){
     var vals=yd.map(row.fn);
     var cells=vals.map(function(v,i){return row.fmt(v,i,vals);}).join("");
     return'<tr style="border-bottom:1px solid #111828"><td style="padding:8px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:'+(row.col||"#8a9ab8")+'">'+row.label+'</td>'+cells+'</tr>';
   }).join("");
-  return'<div class="tbl-wrap"><table style="table-layout:auto"><thead>'+header+'</thead><tbody>'+rows+'</tbody></table></div>';
+  return'<div class="card" style="margin-bottom:14px">'+toggleHtml+'<div class="tbl-wrap"><table style="table-layout:auto"><thead>'+header+'</thead><tbody>'+rows+'</tbody></table></div></div>';
 }
 
-// ── SCORECARD MODAL ──────────────────────────────────────────────────────────
 function openScorecard(r){
   S.modalRound = r;
   var pars = getCoursePars(r.course);
