@@ -1003,14 +1003,14 @@ function trendTable(active){
       statRows.push({label:TL[t]+"%",col:TC[t],fn:function(d){return d.pcts[t];},fmt:function(v,i,arr){
         var prev=arr[i-1];
         var better=t==="birdie"||t==="parH";
-        var arrow=prev!==undefined?((better?v>prev:v<prev)' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
         return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'%</span>'+arrow+'</td>';
       }});
     } else {
       statRows.push({label:TL[t]+"/rd",col:TC[t],fn:function(d){return d.avgs[t];},fmt:function(v,i,arr){
         var prev=arr[i-1];
         var better=t==="birdie"||t==="parH";
-        var arrow=prev!==undefined?((better?v>prev:v<prev)' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
         return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'</span>'+arrow+'</td>';
       }});
     }
