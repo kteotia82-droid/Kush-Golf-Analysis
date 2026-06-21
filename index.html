@@ -765,6 +765,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <script src="rounds.js"></script>
 <script>
 
+// ── APP CONSTANTS ────────────────────────────────────────────────────────────
+const DP  = [4,4,3,4,5,4,3,4,4,4,3,5,4,4,3,5,4,4];
+const TK  = ["birdie","parH","bogey","dbl","trip"];
+const TL  = {birdie:"Birdie",parH:"Par",bogey:"Bogey",dbl:"Double",trip:"Triple+"};
+const TC  = {birdie:"#4ade80",parH:"#60a5fa",bogey:"#fb923c",dbl:"#f87171",trip:"#dc2626"};
+const SCL = {eagle:"#fbbf24",birdie:"#4ade80",par:"#60a5fa",bogey:"#fb923c",double:"#f87171",triple:"#dc2626"};
+
+function getCoursePars(name) {
+  return COURSE_PARS[name] || COURSE_PARS[(name||"").trim()] || DP;
+}
+
 // ── STATE ────────────────────────────────────────────────────────────────────
 var savedRounds = [];
 try { savedRounds = JSON.parse(localStorage.getItem("golf_rounds")||"[]"); } catch(e){}
@@ -1645,6 +1656,14 @@ function buildLeafletMap(){
     canvas.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#f87171;font-size:12px;padding:20px;text-align:center">Map error: '+e.message+'</div>';
     return;
   }
+
+  // Fix Leaflet marker icon paths (broken when JS is inlined)
+  delete window.L.Icon.Default.prototype._getIconUrl;
+  window.L.Icon.Default.mergeOptions({
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
 
   window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
     maxZoom:18, opacity:0.9
