@@ -749,6 +749,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <button class="bnav-btn" onclick="setTab('insights')"><span class="bnav-icon">&#128161;</span><span class="bnav-label" id="lbl-insights">Insights</span></button>
     <button class="bnav-btn" onclick="setTab('courses')"><span class="bnav-icon">&#128506;</span><span class="bnav-label" id="lbl-courses">Courses</span></button>
     <button class="bnav-btn" onclick="setTab('rounds')"><span class="bnav-icon">&#128203;</span><span class="bnav-label" id="lbl-rounds">Rounds</span></button>
+    <button class="bnav-btn" onclick="setTab('enter')"><span class="bnav-icon">&#43;</span><span class="bnav-label" id="lbl-enter">Enter</span></button>
   </div>
   <!-- Scorecard modal -->
   <div id="sc-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(4,6,12,0.92);overflow-y:auto;-webkit-overflow-scrolling:touch;backdrop-filter:blur(4px)">
@@ -1744,7 +1745,7 @@ function render(){
   var allYears = [...new Set(active.map(function(r){return r.year;}))].sort(function(a,b){return b-a;});
 
   // Nav label highlights
-  ["home","yearly","insights","courses","rounds"].forEach(function(t){
+  ["home","yearly","insights","courses","rounds","enter"].forEach(function(t){
     var el = $("lbl-"+t);
     if(el) el.style.color = S.tab===t ? "#7b9cff" : "#5a6a8a";
   });
