@@ -987,7 +987,7 @@ function trendTable(active){
     {label:"Avg",fn:function(d){return parseFloat(d.av);},fmt:function(v,i,arr){
       var best=Math.min.apply(null,arr);var worst=Math.max.apply(null,arr);
       var col=v===best?"#4ade80":v===worst?"#f87171":"#e8ecf4";
-      return'<td style="font-size:14px;font-weight:800;padding:8px 10px;color:'+col+'">'+v.toFixed(1)+(v===best?"✓":"")+'</td>';
+      return'<td style="font-size:14px;font-weight:800;padding:8px 10px;color:'+col+'">'+v.toFixed(1)+(v===best?"&#10003;":"")+'</td>';
     }},
     {label:"Best",fn:function(d){return d.best;},fmt:function(v,i,arr){
       var b=Math.min.apply(null,arr);
@@ -1003,14 +1003,14 @@ function trendTable(active){
       statRows.push({label:TL[t]+"%",col:TC[t],fn:function(d){return d.pcts[t];},fmt:function(v,i,arr){
         var prev=arr[i-1];
         var better=t==="birdie"||t==="parH";
-        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">&#9650;</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">&#9660;</span>':""):"";
         return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'%</span>'+arrow+'</td>';
       }});
     } else {
       statRows.push({label:TL[t]+"/rd",col:TC[t],fn:function(d){return d.avgs[t];},fmt:function(v,i,arr){
         var prev=arr[i-1];
         var better=t==="birdie"||t==="parH";
-        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">▲</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">▼</span>':""):"";
+        var arrow=prev!==undefined?((better?v>prev:v<prev)?' <span style="font-size:10px;color:#4ade80">&#9650;</span>':(better?v<prev:v>prev)?' <span style="font-size:10px;color:#f87171">&#9660;</span>':""):"";
         return'<td style="padding:8px 10px"><span class="pill" style="background:'+TC[t]+'18;border:1px solid '+TC[t]+'44;color:'+TC[t]+'">'+v+'</span>'+arrow+'</td>';
       }});
     }
